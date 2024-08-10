@@ -1,106 +1,172 @@
-document.getElementById('download-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('converter-form');
+    const loader = document.getElementById('loader');
+    const errorMessage = document.getElementById('error-message');
+    const videoInfo = document.getElementById('video-info');
+    const thumbnail = document.getElementById('thumbnail');
+    const videoTitle = document.getElementById('video-title');
+    const videoDuration = document.getElementById('video-duration');
+    const downloadButtons = document.querySelectorAll('.download-btn');
 
-    const url = document.getElementById('url').value;
-    const resolution = document.getElementById('resolution').value;
-    const messageDiv = document.getElementById('message');
-    const videoPreviewDiv = document.getElementById('video-preview');
-    const videoElement = document.getElementById('video');
-    const historyList = document.getElementById('history-list');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const youtubeUrl = document.getElementById('youtube-url').value;
 
-    messageDiv.textContent = 'Processing...';
-    messageDiv.classList.remove('hidden');
-    videoPreviewDiv.classList.add('hidden');
-
-    try {
-        const response = await fetch('https://you2-mp4.onrender.com/download', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ url, resolution }),
-        });
-
-        const data = await response.json();
-
-        if (data.status === 'success') {
-            messageDiv.textContent = 'Download ready!';
-
-            videoElement.src = data.preview;
-            videoPreviewDiv.classList.remove('hidden');
-
-            const downloadLink = document.createElement('a');
-            downloadLink.href = data.file;
-            downloadLink.textContent = `Download (${resolution})`;
-            downloadLink.target = '_blank';
-
-            const historyItem = document.createElement('li');
-            historyItem.appendChild(downloadLink);
-            historyList.appendChild(historyItem);
-
-            document.getElementById('download-history').classList.remove('hidden');
-        } else {
-            messageDiv.textContent = data.message;
+        if (!isValidYouTubeUrl(youtubeUrl)) {
+            showError('Please enter a valid YouTube URL');
+            return;
         }
-    } catch (error) {
-        messageDiv.textContent = 'An error occurred. Please try again.';
-    }
-});
 
-// Fetch resolutions and populate the dropdown
-document.getElementById('url').addEventListener('input', async () => {
-    const url = document.getElementById('url').value;
-    const resolutionSelect = document.getElementById('resolution');
+        showLoader();
+        clearError();
+        hideVideoInfo();
 
-    if (url) {
         try {
-            const response = await fetch('YOUR_BACKEND_URL/get_resolutions', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ url }),
-            });
-
-            const data = await response.json();
-
-            resolutionSelect.innerHTML = '';
-            data.resolutions.forEach(resolution => {
-                const option = document.createElement('option');
-                option.value = resolution;
-                option.textContent = resolution;
-                resolutionSelect.appendChild(option);
-            });
+            const videoData = await fetchVideoInfo(youtubeUrl);
+            displayVideoInfo(videoData);
+            addRecentConversion(videoData);
         } catch (error) {
-            console.error('Error fetching resolutions:', error);
+            showError('An error occurred while fetching video information');
+        } finally {
+            hideLoader();
+        }
+    });
+
+    downloadButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const quality = button.dataset.quality;
+            const youtubeUrl = document.getElementById('youtube-url').value;
+            downloadVideo(youtubeUrl, quality);
+        });
+    });
+
+    function isValidYouTubeUrl(url) {
+        const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.?be)\/.+$/;
+        return youtubeRegex.test(url);
+    }
+
+    function showLoader() {
+        loader.style.display = 'block';
+    }
+
+    function hideLoader() {
+        loader.style.display = 'none';
+    }
+
+    function showError(message) {
+        errorMessage.textContent = message;
+    }
+
+    function clearError() {
+        errorMessage.textContent = '';
+    }
+
+    function hideVideoInfo() {
+        videoInfo.style.display = 'none';
+    }
+
+    async function fetchVideoInfo(url) {
+        // This is a mock function. In a real application, you would make an API call to your backend.
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                resolve({
+                    title: 'Sample YouTube Video',
+                    duration: '10:30',
+                    thumbnail: 'https://via.placeholder.com/480x360.png?text=Video+Thumbnail',
+                    url: url
+                });
+            }, 1500);
+        });
+    }
+
+    function displayVideoInfo(videoData) {
+        thumbnail.src = videoData.thumbnail;
+        videoTitle.textContent = videoData.title;
+        videoDuration.textContent = `Duration: ${videoData.duration}`;
+        videoInfo.style.display = 'block';
+    }
+
+    function downloadVideo(url, quality) {
+        // This is a mock function. In a real application, you would make an API call to your backend.
+        console.log(`Downloading video: ${url} at ${quality}`);
+        showNotification(`Download started for ${quality} version`, 'success');
+    }
+
+    function addRecentConversion(videoData) {
+        const recentConversions = JSON.parse(localStorage.getItem('recentConversions')) || [];
+        recentConversions.unshift(videoData);
+        if (recentConversions.length > 5) {
+            recentConversions.pop();
+        }
+        localStorage.setItem('recentConversions', JSON.stringify(recentConversions));
+        updateRecentConversionsList();
+    }
+
+    function updateRecentConversionsList() {
+        const recentConversions = JSON.parse(localStorage.getItem('recentConversions')) || [];
+        const recentList = document.getElementById('recent-conversions');
+        recentList.innerHTML = '';
+        
+        recentConversions.forEach(video => {
+            const li = document.createElement('li');
+            li.textContent = video.title;
+            li.addEventListener('click', () => {
+                document.getElementById('youtube-url').value = video.url;
+                form.dispatchEvent(new Event('submit'));
+            });
+            recentList.appendChild(li);
+        });
+    }
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            notification.classList.add('show');
+        }, 10);
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    window.addEventListener('online', () => {
+        showNotification('You are back online!', 'success');
+    });
+
+    window.addEventListener('offline', () => {
+        showNotification('You are offline. Please check your internet connection.', 'error');
+    });
+
+    function checkBrowserSupport() {
+        const requiredFeatures = {
+            'Fetch API': 'fetch' in window,
+            'Promise': 'Promise' in window,
+            'localStorage': 'localStorage' in window,
+            'Flexbox': CSS.supports('display', 'flex')
+        };
+
+        let unsupportedFeatures = [];
+
+        for (let feature in requiredFeatures) {
+            if (!requiredFeatures[feature]) {
+                unsupportedFeatures.push(feature);
+            }
+        }
+
+        if (unsupportedFeatures.length > 0) {
+            showNotification(`Your browser doesn't support: ${unsupportedFeatures.join(', ')}. Some features may not work correctly.`, 'warning');
         }
     }
+
+    // Initialize the application
+    updateRecentConversionsList();
+    checkBrowserSupport();
 });
-
-// Social Media Sharing
-function shareOnSocialMedia(platform, url) {
-    let shareUrl = '';
-
-    switch (platform) {
-        case 'facebook':
-            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-            break;
-        case 'twitter':
-            shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`;
-            break;
-        case 'whatsapp':
-            shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(url)}`;
-            break;
-        case 'instagram':
-            shareUrl = `https://www.instagram.com/?url=${encodeURIComponent(url)}`;
-            break;
-    }
-
-    window.open(shareUrl, '_blank');
-}
-
-// Add event listeners for social media buttons
-document.getElementById('facebook-share').addEventListener('click', () => shareOnSocialMedia('facebook', window.location.href));
-document.getElementById('twitter-share').addEventListener('click', () => shareOnSocialMedia('twitter', window.location.href));
-document.getElementById('whatsapp-share').addEventListener('click', () => shareOnSocialMedia('whatsapp', window.location.href));
-document.getElementById('instagram-share').addEventListener('click', () => shareOnSocialMedia('instagram', window.location.href));

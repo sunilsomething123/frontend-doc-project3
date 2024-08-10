@@ -1,134 +1,146 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
-
-body {
-    font-family: 'Montserrat', sans-serif;
-    background: #121212; /* Dark background for team black */
-    color: #e0e0e0; /* Light text for contrast */
+* {
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
+    box-sizing: border-box;
 }
 
-.container {
-    max-width: 600px;
-    margin: 20px;
-    padding: 20px;
-    background: linear-gradient(145deg, #1c1c1c, #242424); /* 3D gradient effect */
-    border-radius: 15px;
-    box-shadow: 20px 20px 60px #0e0e0e, -20px -20px 60px #2a2a2a; /* 3D box shadow */
-    text-align: center;
-    border: 1px solid #333;
+body {
+    font-family: Ubuntu, sans-serif;
+}
+
+.downloader-container {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
 }
 
 h1 {
+    font-size: 3rem;
     margin-bottom: 20px;
-    color: #ffffff;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 2px;
 }
 
-form {
+.form-container {
+    width: 500px;
+    padding: 20px;
+    border: 1px solid black;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-container {
+    width: 100%;
+    margin-bottom: 20px;
     display: flex;
     flex-direction: column;
 }
 
-input, select, button {
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    border: 1px solid #444;
-    background: #2a2a2a;
-    color: #ffffff;
-    font-size: 16px;
-    transition: transform 0.3s, box-shadow 0.3s;
+.input-container-checkbox {
+    width: 100%;
+    margin-bottom: 20px;
 }
 
-input:hover, select:hover, button:hover {
-    border-color: #666;
-    background: #333;
-    box-shadow: 10px 10px 20px #0e0e0e, -10px -10px 20px #2a2a2a; /* 3D hover effect */
+.input-container input, select {
+    padding-left: 15px;
+    width: 100%;
+    height: 35px;
+    margin-top: 10px;
 }
 
-button {
-    background: linear-gradient(145deg, #1f1f1f, #3a3a3a);
-    color: #ffffff;
-    border: none;
+.button {
+    margin-top: 20px;
+    width: 200px;
+    height: 45px;
+    outline: none;
+    background: white;
+    border: 1px solid black;
+    border-radius: 15px;
     cursor: pointer;
-    font-weight: 700;
+    font-size: 1.3rem;
+    transition: all .5s ease-in;
 }
 
-button:hover {
-    background: linear-gradient(145deg, #3a3a3a, #5a5a5a);
-    box-shadow: 20px 20px 40px #0e0e0e, -20px -20px 40px #2a2a2a; /* 3D hover effect */
-    transform: translateY(-5px); /* Lift on hover */
+.button:hover {
+    background: black;
+    color: white;
 }
 
-#message {
-    margin-top: 20px;
-    font-size: 18px;
-    color: #ff9800;
-    text-shadow: 0 0 10px rgba(255, 152, 0, 0.7);
+/* --------------------------------------------*/
+/* Loader */
+/* --------------------------------------------*/
+.loader-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
-.hidden {
-    display: none;
+.loading-dual-ring {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
 }
 
-#video-preview {
-    margin-top: 20px;
+.loading-dual-ring:after {
+    content: " ";
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border-radius: 50%;
+    border: 6px solid black;
+    border-color: black transparent black transparent;
+    animation: loading-dual-ring 1.2s linear infinite;
 }
 
-video {
-    max-width: 100%;
-    border-radius: 10px;
-    border: 1px solid #444;
-    box-shadow: 10px 10px 30px #0e0e0e, -10px -10px 30px #2a2a2a; /* 3D box shadow */
-}
-
-#download-history {
-    margin-top: 20px;
-}
-
-#history-list li {
-    margin-bottom: 10px;
-    padding: 15px;
-    border: 1px solid #444;
-    border-radius: 10px;
-    background: #2a2a2a;
-    color: #ffffff;
-    transition: background 0.3s, color 0.3s, box-shadow 0.3s, transform 0.3s;
-}
-
-#history-list li:hover {
-    background: #333;
-    color: #ff9800;
-    box-shadow: 15px 15px 30px #0e0e0e, -15px -15px 30px #2a2a2a; /* 3D hover effect */
-    transform: translateY(-5px); /* Lift on hover */
-}
-
-/* Social Media Buttons */
-.social-media-buttons {
+.loading-message {
     margin-top: 20px;
 }
 
-.social-media-buttons button {
-    margin: 0 5px;
-    padding: 10px 20px;
-    border-radius: 10px;
-    background: #444;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+@keyframes loading-dual-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
-.social-media-buttons button:hover {
-    background: #666;
-    box-shadow: 10px 10px 20px #0e0e0e, -10px -10px 20px #2a2a2a; /* 3D hover effect */
-    transform: scale(1.1); /* Enlarge on hover */
+
+/* --------------------------------------------*/
+/* Messages */
+/* --------------------------------------------*/
+.message-success {
+    width: 100%;
+    height: auto;
+    margin-top: 20px;
+    padding: 10px;
+    color: black;
+    border: 1px solid #3A7734;
+    border-radius: 20px;
+    background-color: #b4fcad;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.message-fail {
+    width: 100%;
+    height: auto;
+    margin-top: 20px;
+    padding: 10px;
+    color: black;
+    border: 1px solid #9C1A1C;
+    border-radius: 20px;
+    background-color: #fdadaf;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
