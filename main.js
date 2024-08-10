@@ -8,10 +8,10 @@ $(document).ready(() => {
         const extension = $("#extension").val().toLowerCase();
         const playlist = $("#playlist").is(":checked");
 
-        httpPost("download", {
+        httpPost("https://backend-doc-project3.onrender.com/download", {
             url: url, extension: extension, playlist: playlist
-        })
-    })
+        });
+    });
 });
 
 const showLoader = (showLoader = true) => {
@@ -40,7 +40,7 @@ const httpPost = (url, data) => {
     showLoader(true);
     $.ajax({
         type: "POST",
-        url: "/download",
+        url: url,
         data: JSON.stringify(data),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
